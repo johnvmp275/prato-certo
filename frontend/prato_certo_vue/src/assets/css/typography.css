@@ -1,0 +1,28 @@
+:root {
+  --font-title: 'Poppins', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-title);
+  font-weight: 600;
+  color: var(--color-text-title);
+  letter-spacing: -0.01em;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+}
+
+body {
+  color: var(--color-text-primary);
+  font-size: 15px;
+  line-height: 1.5;
+}

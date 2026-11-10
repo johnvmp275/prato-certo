@@ -1,0 +1,178 @@
+:root {
+  /* ===========================
+   * PRIMARY (Laranja - ações principais)
+   * =========================== */
+
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-800: #9a3412;
+  --color-primary-900: #7c2d12;
+
+  /* ===========================
+   * SUCCESS (Verde - confirmar / pagar)
+   * =========================== */
+
+  --color-success-50: #ecfdf1;
+  --color-success-100: #d1fadf;
+  --color-success-200: #a6f0c0;
+  --color-success-300: #6ee29a;
+  --color-success-400: #3ccb74;
+  --color-success-500: #22a94f;
+  --color-success-600: #1a8f42;
+  --color-success-700: #167236;
+  --color-success-800: #145a2e;
+  --color-success-900: #114a27;
+
+  /* ===========================
+   * WARNING
+   * =========================== */
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  /* ===========================
+   * ERROR
+   * =========================== */
+
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+
+  /* ===========================
+   * INFO
+   * =========================== */
+
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+
+  /* ===========================
+   * NEUTRAL
+   * =========================== */
+
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f8f8fa;
+  --color-neutral-100: #f2f2f5;
+  --color-neutral-200: #e9e9ee;
+  --color-neutral-300: #d9d9e0;
+  --color-neutral-400: #b4b4bf;
+  --color-neutral-500: #8d8d9a;
+  --color-neutral-600: #6b6b78;
+  --color-neutral-700: #4a4a55;
+  --color-neutral-800: #2b2b33;
+  --color-neutral-900: #1b1b22;
+
+  /* ===========================
+   * BACKGROUND / SURFACE
+   * =========================== */
+
+  --color-background: #f6f6f8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fafafb;
+
+  /* ===========================
+   * BORDER
+   * =========================== */
+
+  --color-border-light: #f0f0f3;
+  --color-border-default: #e8e8ed;
+  --color-border-dark: #d6d6de;
+
+  /* ===========================
+   * TEXT
+   * =========================== */
+
+  --color-text-title: #1b1b22;
+  --color-text-primary: #2b2b33;
+  --color-text-secondary: #6b6b78;
+  --color-text-tertiary: #9a9aa6;
+  --color-text-disabled: #c0c0c8;
+  --color-text-inverse: #ffffff;
+
+  /* ===========================
+   * ICONS
+   * =========================== */
+
+  --color-icon-primary: #2b2b33;
+  --color-icon-secondary: var(--color-primary-500);
+  --color-icon-muted: #9a9aa6;
+
+  /* ===========================
+   * BUTTONS
+   * =========================== */
+
+  --color-button-primary: var(--color-primary-500);
+  --color-button-primary-hover: var(--color-primary-600);
+  --color-button-primary-active: var(--color-primary-700);
+
+  --color-button-success: var(--color-success-500);
+  --color-button-success-hover: var(--color-success-600);
+
+  --color-button-secondary: #ffffff;
+  --color-button-secondary-hover: #f6f6f8;
+
+  /* ===========================
+   * INPUTS
+   * =========================== */
+
+  --color-input-background: #ffffff;
+  --color-input-border: #e3e3ea;
+  --color-input-border-hover: #cfcfd8;
+  --color-input-border-focus: var(--color-primary-400);
+  --color-input-placeholder: #a5a5b0;
+
+  /* ===========================
+   * SIDEBAR
+   * =========================== */
+
+  --color-sidebar-background: #ffffff;
+  --color-sidebar-item: transparent;
+  --color-sidebar-item-hover: #f6f6f8;
+  --color-sidebar-item-active: var(--color-primary-50);
+
+  /* ===========================
+   * TABLE
+   * =========================== */
+
+  --color-table-header: #fafafb;
+  --color-table-row-hover: #fafafb;
+
+  /* ===========================
+   * OVERLAY
+   * =========================== */
+
+  --color-overlay: rgba(17, 17, 24, 0.48);
+
+  /* ===========================
+   * SHADOWS
+   * =========================== */
+
+  --shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
+  --shadow-sm: 0 2px 8px rgba(17, 17, 24, 0.06);
+  --shadow-md: 0 8px 24px rgba(17, 17, 24, 0.08);
+  --shadow-lg: 0 16px 48px rgba(17, 17, 24, 0.14);
+  --shadow-primary: 0 8px 20px rgba(249, 115, 22, 0.28);
+
+  /* ===========================
+   * STATUS (mesas e pedidos)
+   * =========================== */
+
+  --color-status-livre: var(--color-success-500);
+  --color-status-ocupada: var(--color-error-500);
+  --color-status-espera: var(--color-primary-500);
+  --color-status-pendente: var(--color-warning-500);
+  --color-status-finalizado: var(--color-success-500);
+  --color-status-cancelado: var(--color-neutral-500);
+}

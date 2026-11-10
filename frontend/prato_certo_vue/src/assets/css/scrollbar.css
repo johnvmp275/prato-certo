@@ -1,0 +1,8 @@
+body[style*='overflow: hidden'] {
+  margin-right: var(--scrollbar-width);
+}
+
+body[style*='overflow: hidden'] .force-fill {
+  margin-right: calc(var(--scrollbar-width) * -1);
+  padding-right: var(--scrollbar-width);
+}

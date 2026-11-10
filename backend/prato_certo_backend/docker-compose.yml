@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    container_name: prato-certo-api
+    depends_on:
+      - db
+    environment:
+      - URL=http://localhost:8000
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASS=prato123
+      - DB_NAME=prato_certo
+
+  db:
+    image: mariadb:10.11
+    container_name: prato-certo-db
+    ports:
+      - "3307:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=prato123
+      - MARIADB_DATABASE=prato_certo
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql

@@ -1,0 +1,47 @@
+<script setup>
+import { computed } from 'vue';
+
+import { useRoute } from 'vue-router';
+
+import DefaultLayout from './layouts/DefaultLayout.vue';
+
+import CommonToast from '@/components/Common/CommonToast/CommonToast.vue';
+
+import { useScrollControl } from '@/composables/useScrollControl.js';
+import { useDevice } from '@/composables/useDevice.js';
+
+const route = useRoute();
+const layout = computed(() => {
+  if (route.meta.layout) {
+    return route.meta.layout;
+  }
+
+  return DefaultLayout;
+});
+
+const { updateScrollbarWidth } = useScrollControl();
+const { updateDevice } = useDevice();
+
+const DESKTOP_BREAKPOINT_QUERY = window.matchMedia('(min-width: 1024px)');
+function initResizeForDevice() {
+  updateDevice();
+  DESKTOP_BREAKPOINT_QUERY.addEventListener('change', updateDevice);
+  window.addEventListener('resize', updateDevice);
+}
+function initResizeForScrollbarWidth() {
+  updateScrollbarWidth();
+  DESKTOP_BREAKPOINT_QUERY.addEventListener('change', updateScrollbarWidth);
+  window.addEventListener('resize', updateScrollbarWidth);
+}
+
+initResizeForScrollbarWidth();
+initResizeForDevice();
+</script>
+
+<template>
+  <component :is="layout">
+    <RouterView />
+  </component>
+
+  <CommonToast />
+</template>

@@ -1,0 +1,12 @@
+{
+    "name": "backend/prato_certo_backend",
+    "description": "Prato Certo - API do PDV e Cardápio Online",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "php": ">=8.1"
+    }
+}
