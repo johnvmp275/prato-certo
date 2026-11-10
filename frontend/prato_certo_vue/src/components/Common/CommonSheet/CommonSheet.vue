@@ -1,9 +1,13 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+
+import IconX from '@/components/Icons/IconX.vue';
 
 import { useScrollControl } from '@/composables/useScrollControl';
+import { useDevice } from '@/composables/useDevice';
 
 const { enableScrollLock, disableScrollLock } = useScrollControl();
+const { isDesktop } = useDevice();
 
 defineOptions({
   name: 'CommonSheet',
@@ -31,22 +35,55 @@ const props = defineProps({
     type: [String, Number],
     default: 'initial',
   },
+  // 'auto': gaveta lateral (direita) no desktop e de baixo para cima no celular/tablet
   position: {
     type: String,
     default: 'top',
-    validator: value => ['top', 'right', 'left', 'bottom'].includes(value),
+    validator: value => ['top', 'right', 'left', 'bottom', 'auto'].includes(value),
+  },
+  // Quando informado, a gaveta ganha cabeçalho, corpo com rolagem e rodapé (formulários)
+  title: {
+    type: String,
+    default: '',
+  },
+  description: {
+    type: String,
+    default: '',
   },
 });
 
+const posicaoAtual = computed(() => {
+  if (props.position !== 'auto') return props.position;
+  return isDesktop.value ? 'right' : 'bottom';
+});
+
 const sizeString = computed(() => {
+  // Tamanho padrão do modo automático: 480px na lateral e 92% da altura no celular
+  if (props.position === 'auto' && props.size === 'initial') {
+    return posicaoAtual.value === 'right' ? '480px' : '92dvh';
+  }
+
   if (typeof props.size === 'string') {
     return `${props.size}`;
   }
   return `${props.size}px`;
 });
 
-function onBeforeEnter(el) {
+// Garante uma única trava por gaveta e que ela seja liberada mesmo se a gaveta sair da tela sem animação
+let travouRolagem = false;
+function travarRolagem() {
+  if (travouRolagem) return;
+  travouRolagem = true;
   enableScrollLock();
+}
+function liberarRolagem() {
+  if (!travouRolagem) return;
+  travouRolagem = false;
+  disableScrollLock();
+}
+
+function onBeforeEnter(el) {
+  travarRolagem();
   window.addEventListener('keydown', closeOnEscapeKey);
   emit('before-enter', el);
 }
@@ -60,7 +97,7 @@ function onBeforeLeave(el) {
   emit('before-leave', el);
 }
 function onAfterLeave(el) {
-  disableScrollLock();
+  liberarRolagem();
   window.removeEventListener('keydown', closeOnEscapeKey);
   emit('after-leave', el);
   emit('close');
@@ -79,6 +116,12 @@ function close() {
 onMounted(() => {
   show.value = true;
 });
+
+// Removida sem animação de saída (ex.: virou desktop com a gaveta aberta): libera a rolagem e o Esc
+onBeforeUnmount(() => {
+  liberarRolagem();
+  window.removeEventListener('keydown', closeOnEscapeKey);
+});
 </script>
 
 <template>
@@ -96,7 +139,7 @@ onMounted(() => {
       </Transition>
 
       <Transition
-        :name="`common-sheet-${props.position}`"
+        :name="`common-sheet-${posicaoAtual}`"
         @before-enter="onBeforeEnter"
         @after-enter="onAfterEnter"
         @enter-cancelled="onEnterCancelled"
@@ -106,9 +149,63 @@ onMounted(() => {
         <div
           v-if="show"
           class="common-sheet__content"
-          :class="`position--${props.position}`"
+          :class="`position--${posicaoAtual}`"
         >
+          <!-- MODO PAINEL: CABEÇALHO + CORPO + RODAPÉ -->
+          <section
+            v-if="title"
+            class="common-sheet__panel"
+            role="dialog"
+            aria-modal="true"
+            :aria-label="title"
+          >
+            <span
+              v-if="posicaoAtual === 'bottom'"
+              class="common-sheet__handle"
+              aria-hidden="true"
+            />
+
+            <header class="common-sheet__header">
+              <div>
+                <h2 class="common-sheet__title">{{ title }}</h2>
+                <p
+                  v-if="description"
+                  class="common-sheet__description"
+                >
+                  {{ description }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="common-sheet__close"
+                aria-label="Fechar"
+                @click="close"
+              >
+                <IconX aria-hidden="true" />
+              </button>
+            </header>
+
+            <div class="common-sheet__body">
+              <slot
+                name="content"
+                :close="close"
+              />
+            </div>
+
+            <footer
+              v-if="$slots.footer"
+              class="common-sheet__footer"
+            >
+              <slot
+                name="footer"
+                :close="close"
+              />
+            </footer>
+          </section>
+
+          <!-- MODO LIVRE: O CONTEÚDO OCUPA A GAVETA INTEIRA -->
           <slot
+            v-else
             name="content"
             :close="close"
           />
@@ -209,5 +306,94 @@ onMounted(() => {
 .common-sheet-fade-enter-from,
 .common-sheet-fade-leave-to {
   opacity: 0;
+}
+
+/* MODO PAINEL (FORMULÁRIOS) */
+.common-sheet__panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.position--bottom .common-sheet__panel {
+  border-radius: 20px 20px 0 0;
+}
+
+.common-sheet__handle {
+  align-self: center;
+  width: 44px;
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--color-neutral-300);
+}
+
+.common-sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.common-sheet__title {
+  font-size: 1.15rem;
+}
+
+.common-sheet__description {
+  margin-top: 4px;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.common-sheet__close {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-neutral-100);
+  color: var(--color-text-secondary);
+}
+
+.common-sheet__close svg {
+  width: 18px;
+}
+
+.common-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px;
+}
+
+.common-sheet__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-surface-muted);
+}
+
+.common-sheet__footer :deep(.common-button) {
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .common-sheet__footer :deep(.common-button) {
+    flex: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .common-sheet__close:hover {
+    background: var(--color-neutral-200);
+    color: var(--color-text-title);
+  }
 }
 </style>

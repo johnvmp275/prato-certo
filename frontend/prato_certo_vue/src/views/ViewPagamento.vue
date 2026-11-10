@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
 
@@ -17,7 +17,6 @@ import IconArrowLeft from '@/components/Icons/IconArrowLeft.vue';
 import IconBanknote from '@/components/Icons/IconBanknote.vue';
 import IconCreditCard from '@/components/Icons/IconCreditCard.vue';
 import IconQrCode from '@/components/Icons/IconQrCode.vue';
-import IconCheckCircle from '@/components/Icons/IconCheckCircle.vue';
 import IconCheck from '@/components/Icons/IconCheck.vue';
 
 import { pedidosService } from '@/services/pedidos';
@@ -51,7 +50,6 @@ const bandeira = ref('Visa');
 const centavos = ref('');
 const erro = ref('');
 const pagando = ref(false);
-const resultado = ref(null);
 
 const valor = computed(() => Number(centavos.value || 0) / 100);
 const restante = computed(() => pedido.value?.valores.restante ?? 0);
@@ -72,10 +70,15 @@ async function carregar() {
   carregando.value = true;
   try {
     pedido.value = await pedidosService.buscar(route.params.id);
-    definirValor(pedido.value.valores.restante);
+    // Pedido online: já seleciona a forma que o cliente escolheu no carrinho
+    const previsto = pedido.value.pagamentoPrevisto;
+    if (previsto && !pedido.value.pagamentos.length) forma.value = previsto.forma;
+    // Espera o watch(forma) rodar antes, senão ele troca o valor de volta para o restante
+    await nextTick();
+    definirValor(previsto?.trocoPara && forma.value === 'dinheiro' ? previsto.trocoPara : pedido.value.valores.restante);
   } catch (error) {
     toast.error(error.mensagem);
-    router.replace('/pedidos');
+    router.replace('/painel/pedidos');
   } finally {
     carregando.value = false;
   }
@@ -108,9 +111,11 @@ async function confirmar() {
       bandeira: forma.value === 'cartao' ? bandeira.value : undefined,
     });
 
+    // A tela continua a mesma: o resumo e o status são atualizados com o pedido retornado
     pedido.value = resposta.pedido;
     if (resposta.finalizado) {
-      resultado.value = resposta;
+      const troco = resposta.troco ? ` Troco: ${formatarMoeda(resposta.troco)}.` : '';
+      toast.success(`Pagamento concluído. Pedido #${resposta.pedido.codigo} finalizado.${troco}`);
     } else {
       toast.success(`Pagamento de ${formatarMoeda(resposta.pagamento.valor)} registrado.`);
       definirValor(resposta.pedido.valores.restante);
@@ -143,41 +148,10 @@ onMounted(carregar);
 
     <CommonLoader v-if="carregando" />
 
-    <!-- PEDIDO FINALIZADO -->
-    <section
-      v-else-if="resultado || encerrado"
-      class="view-pagamento__done card"
-    >
-      <IconCheckCircle
-        class="view-pagamento__done-icon"
-        aria-hidden="true"
-      />
-      <h1 class="view-pagamento__done-title">
-        {{ pedido.status === 'cancelado' ? 'Pedido cancelado' : 'Pagamento concluído!' }}
-      </h1>
-      <p class="view-pagamento__done-text">
-        Pedido #{{ pedido.codigo }} · {{ pedido.origem }} · {{ formatarMoeda(pedido.valores.total) }}
-      </p>
-      <p
-        v-if="resultado?.troco"
-        class="view-pagamento__change"
-      >
-        Troco: <strong class="tabular">{{ formatarMoeda(resultado.troco) }}</strong>
-      </p>
-      <div class="view-pagamento__done-actions">
-        <CommonButton
-          variant="secondary"
-          @click="router.push(pedido.tipo === 'mesa' ? '/mesas' : '/pedidos')"
-        >
-          {{ pedido.tipo === 'mesa' ? 'Voltar às mesas' : 'Ver pedidos' }}
-        </CommonButton>
-        <CommonButton @click="router.push('/pdv')">Novo pedido</CommonButton>
-      </div>
-    </section>
-
     <div
       v-else-if="pedido"
       class="view-pagamento__layout"
+      :class="{ 'is-encerrado': encerrado }"
     >
       <!-- RESUMO DO PEDIDO -->
       <section class="view-pagamento__summary card">
@@ -221,13 +195,17 @@ onMounted(carregar);
         </ul>
 
         <PagamentoDesconto
+          v-if="!encerrado"
           :pedido="pedido"
           @atualizado="pedidoAtualizado"
         />
       </section>
 
-      <!-- RECEBIMENTO -->
-      <section class="view-pagamento__checkout card">
+      <!-- RECEBIMENTO (some quando o pedido já foi encerrado) -->
+      <section
+        v-if="!encerrado"
+        class="view-pagamento__checkout card"
+      >
         <div class="view-pagamento__due">
           <span>Valor a receber</span>
           <strong class="tabular">{{ formatarMoeda(restante) }}</strong>
@@ -325,6 +303,7 @@ onMounted(carregar);
         </CommonButton>
       </section>
     </div>
+
   </main>
 </template>
 
@@ -538,45 +517,6 @@ onMounted(carregar);
   font-weight: 600;
 }
 
-.view-pagamento__done {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  max-width: 520px;
-  width: 100%;
-  margin: 24px auto;
-  padding: 40px 24px;
-  text-align: center;
-}
-
-.view-pagamento__done-icon {
-  width: 64px;
-  color: var(--color-success-500);
-}
-
-.view-pagamento__done-title {
-  font-size: 1.5rem;
-}
-
-.view-pagamento__done-text {
-  color: var(--color-text-secondary);
-}
-
-.view-pagamento__change {
-  padding: 12px 20px;
-  border-radius: 14px;
-  background: var(--color-success-50);
-  color: var(--color-success-700);
-  font-size: 1.1rem;
-}
-
-.view-pagamento__done-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
 @media (hover: hover) and (pointer: fine) {
   .view-pagamento__method:not(.is-active):hover {
     border-color: var(--color-primary-200);
@@ -590,6 +530,10 @@ onMounted(carregar);
 @media (min-width: 1024px) {
   .view-pagamento__layout {
     grid-template-columns: minmax(0, 1fr) 420px;
+  }
+  .view-pagamento__layout.is-encerrado {
+    grid-template-columns: minmax(0, 640px);
+    justify-content: center;
   }
 }
 </style>

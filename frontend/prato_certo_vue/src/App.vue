@@ -9,9 +9,16 @@ import CommonToast from '@/components/Common/CommonToast/CommonToast.vue';
 
 import { useScrollControl } from '@/composables/useScrollControl.js';
 import { useDevice } from '@/composables/useDevice.js';
+import { useTema } from '@/composables/useTema.js';
 
 const route = useRoute();
 const layout = computed(() => {
+  // Antes da primeira navegação a rota ainda não foi resolvida (START_LOCATION, sem meta):
+  // não renderiza nada para o layout do painel não montar e chamar a API sem login
+  if (!route.matched.length) {
+    return null;
+  }
+
   if (route.meta.layout) {
     return route.meta.layout;
   }
@@ -21,6 +28,9 @@ const layout = computed(() => {
 
 const { updateScrollbarWidth } = useScrollControl();
 const { updateDevice } = useDevice();
+
+// Aplica o tema salvo (claro/escuro) e acompanha o tema do sistema em todas as telas
+useTema();
 
 const DESKTOP_BREAKPOINT_QUERY = window.matchMedia('(min-width: 1024px)');
 function initResizeForDevice() {
@@ -39,7 +49,10 @@ initResizeForDevice();
 </script>
 
 <template>
-  <component :is="layout">
+  <component
+    :is="layout"
+    v-if="layout"
+  >
     <RouterView />
   </component>
 

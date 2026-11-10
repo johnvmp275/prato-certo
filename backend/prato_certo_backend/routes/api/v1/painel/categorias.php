@@ -25,6 +25,18 @@ $obRouter->post('/api/v1/categorias', [
     }
 ]);
 
+//ROTA DE ORDENAÇÃO DAS CATEGORIAS (ARRASTAR E SOLTAR)
+//PRECISA VIR ANTES DE /categorias/{id}: O ROUTER USA A PRIMEIRA ROTA QUE COMBINA COM A URL
+$obRouter->put('/api/v1/categorias/ordem', [
+    'middlewares' => [
+        'require-painel-login',
+        'require-permissao:produtos.gerenciar'
+     ],
+    function($request){
+        return new Response(200, Api\Categorias::setOrdem($request), 'application/json');
+    }
+]);
+
 //ROTA DE EDIÇÃO DE CATEGORIAS
 $obRouter->put('/api/v1/categorias/{id}', [
     'middlewares' => [

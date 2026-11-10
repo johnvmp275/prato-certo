@@ -25,7 +25,22 @@ export const configuracoesService = {
  * Cardápio online (rotas públicas).
  */
 export const cardapioService = {
-  buscar: () => api.get('/cardapio').then(({ data }) => data),
+  // Filtros opcionais: { categoria, busca } (viram ?categoria=&busca= na API)
+  buscar: (params = {}) => api.get('/cardapio', { params }).then(({ data }) => data),
   enviarPedido: dados => api.post('/cardapio/pedidos', dados).then(({ data }) => data),
   acompanhar: codigo => api.get(`/cardapio/pedidos/${codigo}`).then(({ data }) => data),
+  pix: codigo => api.get(`/cardapio/pedidos/${codigo}/pix`).then(({ data }) => data),
+  validarCupom: (codigo, subtotal) => api.post('/cardapio/cupom', { codigo, subtotal }).then(({ data }) => data),
+};
+
+/**
+ * Conta do cliente no cardápio online (login opcional por telefone + senha).
+ */
+export const contaService = {
+  cadastrar: dados => api.post('/cardapio/conta/cadastro', dados).then(({ data }) => data),
+  login: (telefone, senha) => api.post('/cardapio/conta/login', { telefone, senha }).then(({ data }) => data),
+  me: () => api.get('/cardapio/conta').then(({ data }) => data),
+  atualizar: dados => api.put('/cardapio/conta', dados).then(({ data }) => data),
+  pedidos: (params = {}) => api.get('/cardapio/conta/pedidos', { params }).then(({ data }) => data),
+  logout: () => api.post('/cardapio/conta/logout').then(({ data }) => data),
 };

@@ -50,6 +50,32 @@ class Configuracao{
     public $cardapioAberto = 1;
 
     /**
+     * Chave PIX do restaurante (CPF, CNPJ, e-mail, telefone ou chave aleatória)
+     * @var string|null
+     */
+    public $pixChave;
+
+    /**
+     * Nome do titular da conta PIX (no BR Code vai cortado em 25 caracteres)
+     * @var string|null
+     */
+    public $pixTitular;
+
+    /**
+     * Cidade do titular da conta PIX (no BR Code vai cortada em 15 caracteres)
+     * @var string|null
+     */
+    public $pixCidade;
+
+    /**
+     * Método responsável por verificar se o PIX está configurado
+     * @return boolean
+     */
+    public function isPixConfigurado(){
+        return strlen((string)$this->pixChave) and strlen((string)$this->pixTitular) and strlen((string)$this->pixCidade);
+    }
+
+    /**
      * Cache da configuração carregada na requisição
      * @var Configuracao|null
      */
@@ -67,7 +93,10 @@ class Configuracao{
             'endereco'        => $this->endereco,
             'taxaServico'     => $this->taxaServico,
             'taxaEntrega'     => $this->taxaEntrega,
-            'cardapioAberto'  => $this->cardapioAberto ? 1 : 0
+            'cardapioAberto'  => $this->cardapioAberto ? 1 : 0,
+            'pixChave'        => $this->pixChave,
+            'pixTitular'      => $this->pixTitular,
+            'pixCidade'       => $this->pixCidade
         ]);
 
         //ATUALIZA O CACHE
@@ -86,7 +115,10 @@ class Configuracao{
             'endereco'        => $this->endereco,
             'taxaServico'     => (float)$this->taxaServico,
             'taxaEntrega'     => (float)$this->taxaEntrega,
-            'cardapioAberto'  => (bool)$this->cardapioAberto
+            'cardapioAberto'  => (bool)$this->cardapioAberto,
+            'pixChave'        => $this->pixChave,
+            'pixTitular'      => $this->pixTitular,
+            'pixCidade'       => $this->pixCidade
         ];
     }
 

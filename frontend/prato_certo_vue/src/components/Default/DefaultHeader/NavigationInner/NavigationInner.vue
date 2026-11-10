@@ -59,24 +59,24 @@ onBeforeUnmount(() => clearInterval(intervalo));
 // Itens do menu filtrados pela permissão do perfil logado
 const menuItems = computed(() =>
   [
-    { key: 'dashboard', icon: IconHome, label: 'Painel', link: '/', permissao: 'dashboard' },
-    { key: 'pdv', icon: IconGrid, label: 'PDV', link: '/pdv', permissao: 'pdv' },
-    { key: 'mesas', icon: IconTable, label: 'Mesas', link: '/mesas', permissao: 'mesas' },
+    { key: 'dashboard', icon: IconHome, label: 'Painel', link: '/painel', permissao: 'dashboard' },
+    { key: 'pdv', icon: IconGrid, label: 'PDV', link: '/painel/pdv', permissao: 'pdv' },
+    { key: 'mesas', icon: IconTable, label: 'Mesas', link: '/painel/mesas', permissao: 'mesas' },
     {
       key: 'pedidos',
       icon: IconReceipt,
       label: 'Pedidos',
-      link: '/pedidos',
+      link: '/painel/pedidos',
       permissao: 'pedidos',
       badge: pendentesOnline.value || null,
     },
-    { key: 'clientes', icon: IconUsers, label: 'Clientes', link: '/clientes', permissao: 'clientes' },
-    { key: 'produtos', icon: IconBox, label: 'Produtos', link: '/produtos', permissao: 'produtos' },
-    { key: 'categorias', icon: IconTag, label: 'Categorias', link: '/categorias', permissao: 'produtos.gerenciar' },
-    { key: 'cupons', icon: IconTicket, label: 'Cupons', link: '/cupons', permissao: 'cupons' },
-    { key: 'usuarios', icon: IconUserCog, label: 'Usuários', link: '/usuarios', permissao: 'usuarios' },
-    { key: 'configuracoes', icon: IconSettings, label: 'Ajustes', link: '/configuracoes', permissao: 'configuracoes' },
-    { key: 'cardapio', icon: IconStore, label: 'Cardápio', link: '/cardapio', externo: true },
+    { key: 'clientes', icon: IconUsers, label: 'Clientes', link: '/painel/clientes', permissao: 'clientes' },
+    { key: 'produtos', icon: IconBox, label: 'Produtos', link: '/painel/produtos', permissao: 'produtos' },
+    { key: 'categorias', icon: IconTag, label: 'Categorias', link: '/painel/categorias', permissao: 'produtos.gerenciar' },
+    { key: 'cupons', icon: IconTicket, label: 'Cupons', link: '/painel/cupons', permissao: 'cupons' },
+    { key: 'usuarios', icon: IconUserCog, label: 'Usuários', link: '/painel/usuarios', permissao: 'usuarios' },
+    { key: 'configuracoes', icon: IconSettings, label: 'Ajustes', link: '/painel/configuracoes', permissao: 'configuracoes' },
+    { key: 'cardapio', icon: IconStore, label: 'Cardápio', link: '/', externo: true },
   ].filter(item => !item.permissao || auth.pode(item.permissao)),
 );
 

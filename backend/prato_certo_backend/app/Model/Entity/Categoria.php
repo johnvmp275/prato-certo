@@ -72,12 +72,21 @@ class Categoria{
      * Método responsável por retornar os produtos ativos da categoria
      * @return Produto[]
      */
-    public function getProdutos(){
+    public function getProdutos($busca = ''){
         //PRODUTOS
         $produtos = [];
 
+        //FILTROS (BUSCA OPCIONAL PELO NOME OU DESCRIÇÃO)
+        $where  = 'categoriaId = ? AND status = "ativo"';
+        $params = [$this->id];
+        if(strlen($busca)){
+            $where   .= ' AND (nome LIKE ? OR descricao LIKE ?)';
+            $params[] = '%'.$busca.'%';
+            $params[] = '%'.$busca.'%';
+        }
+
         //BUSCA OS PRODUTOS DA CATEGORIA
-        $results = Produto::getProdutos('categoriaId = ? AND status = "ativo"', 'nome ASC', null, '*', [$this->id]);
+        $results = Produto::getProdutos($where, 'nome ASC', null, '*', $params);
         while($obProduto = $results->fetchObject(Produto::class)){
             $produtos[] = $obProduto;
         }

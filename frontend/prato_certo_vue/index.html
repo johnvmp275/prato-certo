@@ -46,6 +46,18 @@
     </noscript>
 
     <title>Prato Certo</title>
+
+    <!-- Aplica o tema salvo (ou o do sistema) antes da página aparecer, para não piscar branco no dark mode -->
+    <script>
+      (function () {
+        var tema = null;
+        try {
+          tema = localStorage.getItem('prato-certo:tema');
+        } catch (e) {}
+        var escuro = tema ? tema === 'escuro' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = escuro ? 'dark' : 'light';
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

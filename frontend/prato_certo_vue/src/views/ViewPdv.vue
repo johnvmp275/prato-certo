@@ -22,6 +22,7 @@ import { pedidosService } from '@/services/pedidos';
 import { usePdv } from '@/stores/usePdv';
 import { useToast } from '@/stores/useToast';
 import { useDevice } from '@/composables/useDevice';
+import { useAbaSalva } from '@/composables/useAbaSalva';
 import { formatarMoeda } from '@/composables/useFormat';
 
 defineOptions({
@@ -36,7 +37,8 @@ const { isDesktop } = useDevice();
 
 const categorias = ref([]);
 const produtos = ref([]);
-const categoria = ref('todas');
+// Aba salva no localStorage: continua a mesma depois do F5
+const { aba: categoria, garantirValida: garantirCategoriaValida } = useAbaSalva('painel:pdv-categoria', 'todas');
 const busca = ref('');
 const carregandoProdutos = ref(true);
 const carregandoPedido = ref(false);
@@ -59,6 +61,8 @@ const quantidadePorProduto = computed(() =>
 async function carregarCategorias() {
   const resposta = await categoriasService.listar({ status: 'ativo' });
   categorias.value = resposta.categorias.filter(item => item.quantidadeProdutos > 0);
+  // Categoria salva que não existe mais (inativada ou sem produtos): volta para "Todos"
+  garantirCategoriaValida(['todas', ...categorias.value.map(item => item.id)]);
 }
 
 async function carregarProdutos() {
@@ -91,13 +95,13 @@ async function carregarPedido() {
     const pedido = await pedidosService.buscar(id);
     if (['finalizado', 'cancelado'].includes(pedido.status)) {
       toast.info(`O pedido #${pedido.codigo} está ${pedido.statusDescricao.toLowerCase()}.`);
-      router.replace('/pdv');
+      router.replace('/painel/pdv');
       return;
     }
     pdv.carregar(pedido);
   } catch (error) {
     toast.error(error.mensagem);
-    router.replace('/pdv');
+    router.replace('/painel/pdv');
   } finally {
     carregandoPedido.value = false;
   }
@@ -128,7 +132,7 @@ function salvar() {
   executar('salvar', async () => {
     const pedido = await salvarPedido();
     toast.success(`Pedido #${pedido.codigo} salvo.`);
-    if (route.params.id != pedido.id) router.replace(`/pdv/${pedido.id}`);
+    if (route.params.id != pedido.id) router.replace(`/painel/pdv/${pedido.id}`);
   });
 }
 
@@ -137,8 +141,8 @@ function colocarEmEspera() {
     let pedido = await salvarPedido();
     if (pedido.status === 'aberto') pedido = await pedidosService.colocarEmEspera(pedido.id);
     toast.success(`Pedido #${pedido.codigo} colocado em espera.`);
-    pdv.novo();
-    router.push(pedido.tipo === 'mesa' ? '/mesas' : '/pedidos');
+    // Continua no PDV com um pedido em branco (o aviso já é o toast)
+    novoPedido();
   });
 }
 
@@ -147,14 +151,14 @@ function pagar() {
     let pedido = await salvarPedido();
     if (pedido.status === 'em_espera') pedido = await pedidosService.retomar(pedido.id);
     pdv.novo();
-    router.push(`/pedidos/${pedido.id}/pagamento`);
+    router.push(`/painel/pedidos/${pedido.id}/pagamento`);
   });
 }
 
 function novoPedido() {
   pdv.novo();
   mostrarCarrinho.value = false;
-  if (route.params.id) router.push('/pdv');
+  if (route.params.id) router.push('/painel/pdv');
 }
 
 async function aceitarPedido() {

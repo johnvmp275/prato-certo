@@ -1,3 +1,5 @@
 /vendor
 .env
 storage/logs/*.log
+upload/produtos/*
+!upload/produtos/.gitkeep

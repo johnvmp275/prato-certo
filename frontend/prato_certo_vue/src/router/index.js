@@ -9,89 +9,96 @@ const router = createRouter({
   history: createWebHistory(),
   scrollBehavior: () => ({ top: 0 }),
   routes: [
+    /* ===========================
+     * CARDÁPIO ONLINE (PÚBLICO) - abre direto em "/", sem login
+     * =========================== */
+    {
+      name: 'cardapio',
+      path: '/',
+      component: () => import('@/views/ViewCardapio.vue'),
+      meta: { layout: CardapioLayout, publica: true, titulo: 'Cardápio' },
+    },
+    // O acompanhamento agora abre em janela no próprio cardápio; links antigos continuam funcionando
+    {
+      name: 'cardapio-pedido',
+      path: '/pedido/:codigo',
+      redirect: to => ({ path: '/', query: { pedido: to.params.codigo } }),
+    },
+
+    /* ===========================
+     * PAINEL / PDV - todas as rotas em /painel/...
+     * =========================== */
     {
       name: 'login',
-      path: '/login',
+      path: '/painel/login',
       component: () => import('@/views/ViewLogin.vue'),
       meta: { layout: AuthLayout, publica: true, titulo: 'Entrar' },
     },
     {
       name: 'dashboard',
-      path: '/',
+      path: '/painel',
       component: () => import('@/views/ViewDashboard.vue'),
       meta: { permissao: 'dashboard', titulo: 'Painel' },
     },
     {
       name: 'pdv',
-      path: '/pdv/:id?',
+      path: '/painel/pdv/:id?',
       component: () => import('@/views/ViewPdv.vue'),
       meta: { permissao: 'pdv', titulo: 'PDV' },
     },
     {
       name: 'mesas',
-      path: '/mesas',
+      path: '/painel/mesas',
       component: () => import('@/views/ViewMesas.vue'),
       meta: { permissao: 'mesas', titulo: 'Mesas' },
     },
     {
       name: 'pedidos',
-      path: '/pedidos',
+      path: '/painel/pedidos',
       component: () => import('@/views/ViewPedidos.vue'),
       meta: { permissao: 'pedidos', titulo: 'Pedidos' },
     },
     {
       name: 'pagamento',
-      path: '/pedidos/:id/pagamento',
+      path: '/painel/pedidos/:id/pagamento',
       component: () => import('@/views/ViewPagamento.vue'),
       meta: { permissao: 'pdv', titulo: 'Pagamento' },
     },
     {
       name: 'clientes',
-      path: '/clientes',
+      path: '/painel/clientes',
       component: () => import('@/views/ViewClientes.vue'),
       meta: { permissao: 'clientes', titulo: 'Clientes' },
     },
     {
       name: 'produtos',
-      path: '/produtos',
+      path: '/painel/produtos',
       component: () => import('@/views/ViewProdutos.vue'),
       meta: { permissao: 'produtos', titulo: 'Produtos' },
     },
     {
       name: 'categorias',
-      path: '/categorias',
+      path: '/painel/categorias',
       component: () => import('@/views/ViewCategorias.vue'),
       meta: { permissao: 'produtos.gerenciar', titulo: 'Categorias' },
     },
     {
       name: 'cupons',
-      path: '/cupons',
+      path: '/painel/cupons',
       component: () => import('@/views/ViewCupons.vue'),
       meta: { permissao: 'cupons', titulo: 'Cupons' },
     },
     {
       name: 'usuarios',
-      path: '/usuarios',
+      path: '/painel/usuarios',
       component: () => import('@/views/ViewUsuarios.vue'),
       meta: { permissao: 'usuarios', titulo: 'Usuários' },
     },
     {
       name: 'configuracoes',
-      path: '/configuracoes',
+      path: '/painel/configuracoes',
       component: () => import('@/views/ViewConfiguracoes.vue'),
       meta: { permissao: 'configuracoes', titulo: 'Configurações' },
-    },
-    {
-      name: 'cardapio',
-      path: '/cardapio',
-      component: () => import('@/views/ViewCardapio.vue'),
-      meta: { layout: CardapioLayout, publica: true, titulo: 'Cardápio' },
-    },
-    {
-      name: 'cardapio-pedido',
-      path: '/cardapio/pedido/:codigo',
-      component: () => import('@/views/ViewCardapioPedido.vue'),
-      meta: { layout: CardapioLayout, publica: true, titulo: 'Acompanhar pedido' },
     },
     {
       name: 'nao-encontrado',
@@ -102,7 +109,7 @@ const router = createRouter({
   ],
 });
 
-// Protege as rotas do painel (login + permissão do perfil)
+// Protege somente as rotas do painel (login + permissão do perfil); o cardápio é público
 router.beforeEach(async to => {
   document.title = to.meta.titulo ? `${to.meta.titulo} · Prato Certo` : 'Prato Certo';
 

@@ -82,12 +82,12 @@ onMounted(carregar);
       <template #actions>
         <CommonButton
           variant="secondary"
-          @click="router.push('/mesas')"
+          @click="router.push('/painel/mesas')"
         >
           <template #icon><IconTable /></template>
           Mesas
         </CommonButton>
-        <CommonButton @click="router.push('/pdv')">
+        <CommonButton @click="router.push('/painel/pdv')">
           <template #icon><IconGrid /></template>
           Abrir PDV
         </CommonButton>
@@ -107,7 +107,7 @@ onMounted(carregar);
 
       <RouterLink
         v-if="resumo.pedidosOnline"
-        to="/pedidos?aba=online"
+        to="/painel/pedidos?aba=online"
         class="view-dashboard__alert"
       >
         <IconShoppingBag aria-hidden="true" />
@@ -147,7 +147,7 @@ onMounted(carregar);
         <div class="view-dashboard__panel-header">
           <h2 class="view-dashboard__panel-title">Últimos pedidos</h2>
           <RouterLink
-            to="/pedidos"
+            to="/painel/pedidos"
             class="view-dashboard__link"
           >
             Ver todos
@@ -161,7 +161,7 @@ onMounted(carregar);
             v-for="pedido in resumo.ultimosPedidos"
             :key="pedido.id"
             :pedido="pedido"
-            @select="router.push({ path: '/pedidos', query: { id: pedido.id } })"
+            @select="router.push({ path: '/painel/pedidos', query: { id: pedido.id } })"
           />
         </div>
         <CommonEmptyState

@@ -20,6 +20,7 @@ import IconTable from '@/components/Icons/IconTable.vue';
 import { mesasService } from '@/services/crud';
 import { useAuth } from '@/stores/useAuth';
 import { useToast } from '@/stores/useToast';
+import { useAbaSalva } from '@/composables/useAbaSalva';
 
 defineOptions({
   name: 'ViewMesas',
@@ -31,7 +32,8 @@ const router = useRouter();
 
 const mesas = ref([]);
 const resumo = ref({ livres: 0, ocupadas: 0, emEspera: 0 });
-const filtro = ref('todas');
+// Aba salva no localStorage: continua a mesma depois do F5
+const { aba: filtro } = useAbaSalva('painel:mesas', 'todas');
 const carregando = ref(true);
 
 const mesaAbrir = ref(null);
@@ -66,7 +68,7 @@ async function carregar() {
 // Mesa livre abre a comanda; ocupada/em espera vai direto para o pedido no PDV
 function selecionar(mesa) {
   if (mesa.pedido) {
-    router.push(`/pdv/${mesa.pedido.id}`);
+    router.push(`/painel/pdv/${mesa.pedido.id}`);
   } else {
     mesaAbrir.value = mesa;
   }
@@ -74,7 +76,7 @@ function selecionar(mesa) {
 
 function comandaAberta(pedido) {
   toast.success(`Comanda #${pedido.codigo} aberta na ${pedido.origem}.`);
-  router.push(`/pdv/${pedido.id}`);
+  router.push(`/painel/pdv/${pedido.id}`);
 }
 
 function editar(mesa) {

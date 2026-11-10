@@ -21,6 +21,8 @@ import IconReceipt from '@/components/Icons/IconReceipt.vue';
 import { pedidosService } from '@/services/pedidos';
 import { useToast } from '@/stores/useToast';
 import { useDevice } from '@/composables/useDevice';
+import { useAbaSalva } from '@/composables/useAbaSalva';
+import { usePaginaQuery } from '@/composables/usePaginaQuery';
 
 defineOptions({
   name: 'ViewPedidos',
@@ -38,9 +40,14 @@ const FILTROS = {
   historico: { status: 'finalizado,cancelado' },
 };
 
-const aba = ref(FILTROS[route.query.aba] ? route.query.aba : 'abertos');
+// Aba salva no localStorage (continua a mesma depois do F5)
+// O link do dashboard (?aba=online) tem prioridade e passa a ser a aba salva
+const { aba, garantirValida: garantirAbaValida } = useAbaSalva('painel:pedidos', 'abertos');
+if (FILTROS[route.query.aba]) aba.value = route.query.aba;
+garantirAbaValida(Object.keys(FILTROS));
 const busca = ref('');
-const pagina = ref(1);
+// Página ligada ao ?page= da URL (F5, link e "voltar" do navegador mantêm a página)
+const { pagina, ajustarAoTotal } = usePaginaQuery();
 const pedidos = ref([]);
 const paginacao = ref({});
 const carregando = ref(true);
@@ -60,6 +67,7 @@ async function carregar() {
     const resposta = await pedidosService.listar({ ...FILTROS[aba.value], busca: busca.value, page: pagina.value });
     pedidos.value = resposta.pedidos;
     paginacao.value = resposta.paginacao;
+    ajustarAoTotal(resposta.paginacao?.quantidadePaginas);
   } catch (error) {
     toast.error(error.mensagem);
   } finally {
@@ -108,7 +116,7 @@ onBeforeUnmount(() => clearInterval(intervalo));
       subtitle="Acompanhe comandas abertas, pedidos em espera e pedidos do cardápio online."
     >
       <template #actions>
-        <CommonButton @click="router.push('/pdv')">
+        <CommonButton @click="router.push('/painel/pdv')">
           <template #icon><IconPlus /></template>
           Novo pedido
         </CommonButton>

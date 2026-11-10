@@ -1,4 +1,6 @@
 <script setup>
+import CommonThemeToggle from '@/components/Common/CommonThemeToggle/CommonThemeToggle.vue';
+
 import IconCheck from '@/components/Icons/IconCheck.vue';
 
 const DESTAQUES = [
@@ -43,6 +45,7 @@ const DESTAQUES = [
     </section>
 
     <main class="auth-layout__content">
+      <CommonThemeToggle class="auth-layout__theme" />
       <slot />
     </main>
   </div>
@@ -61,10 +64,18 @@ const DESTAQUES = [
 }
 
 .auth-layout__content {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
+}
+
+/* Botão de tema no canto superior direito da área do formulário */
+.auth-layout__theme {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
 @media (min-width: 1024px) {

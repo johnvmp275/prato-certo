@@ -36,10 +36,10 @@ const props = defineProps({
 
 const route = useRoute();
 
-// A home ("/") só fica ativa na própria rota; as demais também nas sub-rotas
+// O início do painel ("/painel") só fica ativo na própria rota; os demais também nas sub-rotas
 const isActive = computed(() => {
   if (props.externo) return false;
-  if (props.link === '/') return route.path === '/';
+  if (props.link === '/painel') return route.path === '/painel';
   return route.path.startsWith(props.link);
 });
 </script>
@@ -94,6 +94,7 @@ const isActive = computed(() => {
   color: var(--color-text-secondary);
   font-size: 0.88rem;
   font-weight: 500;
+  cursor: pointer;
   transition:
     background-color 160ms ease,
     color 160ms ease;

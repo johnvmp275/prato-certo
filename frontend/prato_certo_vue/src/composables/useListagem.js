@@ -3,6 +3,7 @@
 import { reactive, ref, watch } from 'vue';
 
 import { useToast } from '@/stores/useToast';
+import { usePaginaQuery } from '@/composables/usePaginaQuery';
 
 /**
  * Lógica comum das telas de cadastro: busca, filtros, paginação e recarga.
@@ -17,7 +18,8 @@ export function useListagem(buscar, chave, filtrosIniciais = {}) {
   const paginacao = ref({});
   const carregando = ref(true);
   const busca = ref('');
-  const pagina = ref(1);
+  // Página ligada ao ?page= da URL (F5, link e "voltar" do navegador mantêm a página)
+  const { pagina, ajustarAoTotal } = usePaginaQuery();
   const filtros = reactive({ ...filtrosIniciais });
 
   async function carregar() {
@@ -26,6 +28,7 @@ export function useListagem(buscar, chave, filtrosIniciais = {}) {
       const resposta = await buscar({ ...filtros, busca: busca.value, page: pagina.value });
       itens.value = resposta[chave];
       paginacao.value = resposta.paginacao ?? {};
+      ajustarAoTotal(paginacao.value.quantidadePaginas);
     } catch (error) {
       toast.error(error.mensagem);
     } finally {

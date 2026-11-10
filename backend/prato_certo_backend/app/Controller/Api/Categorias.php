@@ -121,8 +121,46 @@ class Categorias extends Api{
         }
 
         $obCategoria->nome   = $nome;
-        $obCategoria->ordem  = Validador::inteiro($postVars['ordem'] ?? 0, 'ordem', 0, 'Ordem');
         $obCategoria->status = Validador::opcao($postVars['status'] ?? 'ativo', ['ativo', 'inativo'], 'status');
+
+        //POSIÇÃO: DEFINIDA PELO ARRASTAR E SOLTAR DA LISTAGEM (setOrdem)
+        //NOVA CATEGORIA SEM ORDEM INFORMADA ENTRA NO FIM; NA EDIÇÃO A POSIÇÃO ATUAL É MANTIDA
+        if(isset($postVars['ordem']) and $postVars['ordem'] !== ''){
+            $obCategoria->ordem = Validador::inteiro($postVars['ordem'], 'ordem', 0, 'Ordem');
+        }elseif(!$obCategoria->id){
+            $obCategoria->ordem = (int)EntityCategoria::getCategorias(null, null, null, 'COALESCE(MAX(ordem), 0) + 1 AS proxima')->fetchObject()->proxima;
+        }
+    }
+
+   /**
+    * Método responsável por salvar a nova ordem das categorias (arrastar e soltar)
+    * Body: { "ids": [3, 1, 2] } -> a primeira da lista fica com ordem 1, a segunda com 2...
+    * @param  Request $request
+    * @return array
+    */
+    public static function setOrdem($request){
+        //VALIDA A LISTA DE IDS
+        $ids = $request->getPostVars()['ids'] ?? null;
+        if(!is_array($ids) or !count($ids)){
+            throw new DadoInvalidoException("Informe a nova ordem das categorias.", null, 'ids');
+        }
+        $ids = array_map(fn($id) => Validador::inteiro($id, 'ids', 1, 'Categoria'), $ids);
+        if(count($ids) != count(array_unique($ids))){
+            throw new DadoInvalidoException("A lista de categorias tem itens repetidos.", null, 'ids');
+        }
+
+        //SALVA TUDO OU NADA (SE UMA CATEGORIA NÃO EXISTIR, NENHUMA POSIÇÃO MUDA)
+        self::transacao(function() use ($ids){
+            foreach($ids as $posicao => $id){
+                $obCategoria = self::getCategoriaValida($id);
+                $obCategoria->ordem = $posicao + 1;
+                $obCategoria->atualizar();
+            }
+        });
+
+        return [
+            'sucesso' => true
+        ];
     }
 
    /**

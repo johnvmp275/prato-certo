@@ -69,7 +69,7 @@ onBeforeUnmount(() => clearInterval(intervalo));
       title="Pedido não encontrado"
       :description="erro"
     >
-      <RouterLink to="/cardapio">
+      <RouterLink to="/">
         <CommonButton>Voltar ao cardápio</CommonButton>
       </RouterLink>
     </CommonEmptyState>
@@ -147,7 +147,7 @@ onBeforeUnmount(() => clearInterval(intervalo));
       </dl>
 
       <RouterLink
-        to="/cardapio"
+        to="/"
         class="view-cardapio-pedido__back"
       >
         ← Voltar ao cardápio

@@ -145,8 +145,7 @@ const cadeiras = computed(() => {
   background: var(--color-surface);
   transition:
     border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+    box-shadow 160ms ease;
 }
 
 .mesa-card__chairs {
@@ -243,7 +242,6 @@ const cadeiras = computed(() => {
   .mesa-card__button:not(:disabled):hover {
     border-color: var(--mesa-cor);
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
   }
   .mesa-card__edit:hover {
     color: var(--color-primary-600);

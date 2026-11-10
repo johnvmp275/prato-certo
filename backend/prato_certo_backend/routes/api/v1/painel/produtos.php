@@ -47,6 +47,17 @@ $obRouter->put('/api/v1/produtos/{id}', [
     }
 ]);
 
+//ROTA DE EDIÇÃO DE PRODUTOS COM UPLOAD DE IMAGEM (POST, POIS O PHP SÓ LÊ ARQUIVOS EM POST)
+$obRouter->post('/api/v1/produtos/{id}', [
+    'middlewares' => [
+        'require-painel-login',
+        'require-permissao:produtos.gerenciar'
+     ],
+    function($request, $id){
+        return new Response(200, Api\Produtos::setEditProduto($request, $id), 'application/json');
+    }
+]);
+
 //ROTA DE INATIVAÇÃO DE PRODUTOS
 $obRouter->delete('/api/v1/produtos/{id}', [
     'middlewares' => [

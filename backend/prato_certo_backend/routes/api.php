@@ -35,3 +35,6 @@ include __DIR__.'/api/v1/painel/configuracoes.php';
 
 //INCLUI AS ROTAS PÚBLICAS DO CARDÁPIO ONLINE
 include __DIR__.'/api/v1/cardapio/cardapio.php';
+
+//INCLUI AS ROTAS DA CONTA DO CLIENTE (CADASTRO, LOGIN E MEUS PEDIDOS)
+include __DIR__.'/api/v1/cardapio/conta.php';

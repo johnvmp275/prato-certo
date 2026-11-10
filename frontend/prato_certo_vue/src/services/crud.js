@@ -16,8 +16,25 @@ export function criarCrud(recurso) {
 }
 
 export const usuariosService = criarCrud('usuarios');
-export const categoriasService = criarCrud('categorias');
-export const produtosService = criarCrud('produtos');
+export const categoriasService = {
+  ...criarCrud('categorias'),
+  // Nova ordem do arrastar e soltar: a primeira categoria da lista fica na posição 1
+  reordenar: ids => api.put('/categorias/ordem', { ids }).then(({ data }) => data),
+};
+export const produtosService = {
+  ...criarCrud('produtos'),
+
+  /**
+   * Cadastra ou edita o produto enviando a imagem (multipart/form-data).
+   * A edição usa POST porque o PHP só lê arquivos enviados em POST.
+   */
+  salvarComImagem: (id, formData) =>
+    api
+      .post(id ? `/produtos/${id}` : '/produtos', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(({ data }) => data),
+};
 export const clientesService = criarCrud('clientes');
 export const mesasService = criarCrud('mesas');
 export const cuponsService = criarCrud('cupons');

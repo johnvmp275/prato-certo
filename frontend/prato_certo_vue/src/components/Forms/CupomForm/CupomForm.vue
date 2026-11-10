@@ -1,7 +1,7 @@
 <script setup>
 import { reactive } from 'vue';
 
-import CommonDialog from '@/components/Common/CommonDialog/CommonDialog.vue';
+import CommonSheet from '@/components/Common/CommonSheet/CommonSheet.vue';
 import CommonInput from '@/components/Common/CommonInput/CommonInput.vue';
 import CommonSelect from '@/components/Common/CommonSelect/CommonSelect.vue';
 import CommonButton from '@/components/Common/CommonButton/CommonButton.vue';
@@ -37,14 +37,23 @@ const form = reactive({
   ativo: (props.cupom?.status ?? 'ativo') === 'ativo',
 });
 
-const { erros, erroGeral, salvando, validar, enviar } = useFormulario(['codigo', 'tipo', 'valor', 'validade']);
+const { erros, erroGeral, salvando, validar, enviar } = useFormulario([
+  'codigo',
+  'tipo',
+  'valor',
+  'validade',
+]);
 
 async function salvar(close) {
   const valor = Number(String(form.valor).replace(',', '.'));
   const valido = validar({
-    codigo: /^[A-Za-z0-9]{3,30}$/.test(form.codigo) ? '' : 'Use de 3 a 30 letras ou números, sem espaços.',
+    codigo: /^[A-Za-z0-9]{3,30}$/.test(form.codigo)
+      ? ''
+      : 'Use de 3 a 30 letras ou números, sem espaços.',
     valor:
-      valor > 0 && (form.tipo !== 'percentual' || valor <= 100) ? '' : 'Informe um valor válido (percentual até 100).',
+      valor > 0 && (form.tipo !== 'percentual' || valor <= 100)
+        ? ''
+        : 'Informe um valor válido (percentual até 100).',
   });
   if (!valido) return;
 
@@ -60,56 +69,58 @@ async function salvar(close) {
 </script>
 
 <template>
-  <CommonDialog
+  <CommonSheet
+    position="auto"
     :title="cupom ? 'Editar cupom' : 'Novo cupom'"
-    :width="480"
     @close="emit('close')"
   >
-    <form
-      class="form-grid"
-      novalidate
-      @submit.prevent
-    >
-      <CommonInput
-        v-model="form.codigo"
-        class="form-grid__full"
-        label="Código"
-        placeholder="Ex: BEMVINDO10"
-        style="text-transform: uppercase"
-        :error="erros.codigo"
-        required
-      />
-      <CommonSelect
-        v-model="form.tipo"
-        label="Tipo"
-        :options="TIPOS"
-        :error="erros.tipo"
-      />
-      <CommonInput
-        v-model="form.valor"
-        :label="form.tipo === 'percentual' ? 'Desconto (%)' : 'Desconto (R$)'"
-        inputmode="decimal"
-        :error="erros.valor"
-        required
-      />
-      <CommonInput
-        v-model="form.validade"
-        class="form-grid__full"
-        label="Validade"
-        type="date"
-        hint="Deixe em branco para não expirar."
-        :error="erros.validade"
-      />
-      <CommonSwitch
-        v-model="form.ativo"
-        class="form-grid__full"
-        label="Cupom ativo"
-      />
-      <CommonMessageError
-        class="form-grid__full"
-        :error="erroGeral"
-      />
-    </form>
+    <template #content>
+      <form
+        class="form-grid"
+        novalidate
+        @submit.prevent
+      >
+        <CommonInput
+          v-model="form.codigo"
+          class="form-grid__full"
+          label="Código"
+          placeholder="Ex: BEMVINDO10"
+          style="text-transform: uppercase"
+          :error="erros.codigo"
+          required
+        />
+        <CommonSelect
+          v-model="form.tipo"
+          label="Tipo"
+          :options="TIPOS"
+          :error="erros.tipo"
+        />
+        <CommonInput
+          v-model="form.valor"
+          :label="form.tipo === 'percentual' ? 'Desconto (%)' : 'Desconto (R$)'"
+          inputmode="decimal"
+          :error="erros.valor"
+          required
+        />
+        <CommonInput
+          v-model="form.validade"
+          class="form-grid__full"
+          label="Validade"
+          type="date"
+          hint="Deixe em branco para não expirar."
+          :error="erros.validade"
+        />
+        <CommonSwitch
+          v-model="form.ativo"
+          class="form-grid__full"
+          label="Cupom ativo"
+        />
+        <CommonMessageError
+          class="form-grid__full"
+          :error="erroGeral"
+        />
+      </form>
+    </template>
 
     <template #footer="{ close }">
       <CommonButton
@@ -125,5 +136,5 @@ async function salvar(close) {
         Salvar cupom
       </CommonButton>
     </template>
-  </CommonDialog>
+  </CommonSheet>
 </template>

@@ -1,3 +1,45 @@
+/* ===========================
+ * BARRA DE ROLAGEM ESTILIZADA (página, cardápio, carrinho, janelas e painel)
+ * =========================== */
+
+/* Chrome, Edge e Safari */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* A borda transparente + background-clip deixa a barra mais fina e com respiro nas laterais */
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-color: var(--color-neutral-300);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary-400);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--color-primary-500);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox (não tem os seletores acima; no Chrome essas propriedades desligariam o estilo arredondado) */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-300) transparent;
+  }
+}
+
 body[style*='overflow: hidden'] {
   margin-right: var(--scrollbar-width);
 }

@@ -53,8 +53,7 @@ class Clientes extends Api{
         //RESULTADOS DA PÁGINA
         $results = EntityCliente::getClientes($where, 'nome ASC', $obPagination->getLimit(), $fields, $params);
         while($dados = $results->fetch(\PDO::FETCH_ASSOC)){
-            $obCliente = new EntityCliente;
-            foreach($dados as $campo => $valor) if(property_exists($obCliente, $campo)) $obCliente->$campo = $valor;
+            $obCliente = EntityCliente::instanciar($dados);
 
             $itens[] = array_merge($obCliente->toArray(), [
                 'totalGasto'   => (float)$dados['totalGasto'],
@@ -139,6 +138,14 @@ class Clientes extends Api{
         //CAMPOS OBRIGATÓRIOS
         $obCliente->nome     = Validador::tamanho(Validador::obrigatorio($postVars['nome'] ?? '', 'nome', 'Nome'), 'nome', 3, 120);
         $obCliente->telefone = Validador::telefone(Validador::obrigatorio($postVars['telefone'] ?? '', 'telefone', 'Telefone'));
+
+        //O TELEFONE É O LOGIN DO CARDÁPIO: QUEM TEM CONTA NÃO PODE FICAR COM O TELEFONE DE OUTRA CONTA
+        if($obCliente->possuiConta()){
+            $obOutraConta = EntityCliente::getContaByTelefone($obCliente->telefone);
+            if($obOutraConta instanceof EntityCliente and $obOutraConta->id != $obCliente->id){
+                throw new DadoInvalidoException("Já existe outra conta do cardápio com este telefone.", null, 'telefone');
+            }
+        }
 
         //CAMPOS OPCIONAIS
         $email = trim((string)($postVars['email'] ?? ''));

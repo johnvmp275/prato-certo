@@ -3,6 +3,7 @@
 namespace App\Model\Entity;
 
 use \App\Utils\Validador;
+use \App\Exception\DadoInvalidoException;
 use \App\Exception\EstadoInvalidoException;
 
 class PedidoOnline extends Pedido{
@@ -48,6 +49,51 @@ class PedidoOnline extends Pedido{
      * @var float
      */
     public $taxaEntrega = 0;
+
+    /**
+     * Forma de pagamento escolhida pelo cliente no carrinho (dinheiro | cartao | pix)
+     * É só a intenção: o pagamento é registrado pelo atendente no caixa
+     * @var string|null
+     */
+    public $formaPagamento;
+
+    /**
+     * Valor em dinheiro que o cliente vai entregar (para o atendente separar o troco)
+     * @var float|null
+     */
+    public $trocoPara;
+
+    /**
+     * Descrições das formas de pagamento
+     * @var array
+     */
+    const FORMAS_PAGAMENTO = [
+        'dinheiro' => 'Dinheiro',
+        'cartao'   => 'Cartão',
+        'pix'      => 'PIX'
+    ];
+
+    /**
+     * Método responsável por validar a forma de pagamento escolhida
+     * (chamar depois de adicionar os itens, pois o troco é comparado com o total)
+     */
+    public function validarPagamento(){
+        //FORMA OBRIGATÓRIA
+        $this->formaPagamento = Validador::opcao(Validador::obrigatorio($this->formaPagamento, 'formaPagamento', 'Forma de pagamento'), array_keys(self::FORMAS_PAGAMENTO), 'formaPagamento');
+
+        //TROCO SÓ FAZ SENTIDO NO DINHEIRO (OPCIONAL: VAZIO = NÃO PRECISA DE TROCO)
+        if($this->formaPagamento != 'dinheiro' or !strlen(trim((string)$this->trocoPara))){
+            $this->trocoPara = null;
+            return;
+        }
+
+        //O VALOR ENTREGUE PRECISA COBRIR O TOTAL DO PEDIDO
+        $this->calcularTotal();
+        $this->trocoPara = round(Validador::numero($this->trocoPara, 'trocoPara', 0, 'Troco para'), 2);
+        if($this->trocoPara < $this->total){
+            throw new DadoInvalidoException("O troco deve ser para um valor maior que o total (R$ ".number_format($this->total, 2, ',', '.').").", null, 'trocoPara');
+        }
+    }
 
     /**
      * Método responsável por validar os dados de contato e entrega (RN11)
@@ -114,7 +160,9 @@ class PedidoOnline extends Pedido{
             'nomeContato'     => $this->nomeContato,
             'telefoneContato' => $this->telefoneContato,
             'enderecoEntrega' => $this->enderecoEntrega,
-            'taxaEntrega'     => (float)$this->taxaEntrega
+            'taxaEntrega'     => (float)$this->taxaEntrega,
+            'formaPagamento'  => $this->formaPagamento ?: null,
+            'trocoPara'       => strlen((string)$this->trocoPara) ? (float)$this->trocoPara : null
         ]);
     }
 
@@ -129,7 +177,23 @@ class PedidoOnline extends Pedido{
                 'nome'     => $this->nomeContato,
                 'telefone' => $this->telefoneContato,
                 'endereco' => $this->enderecoEntrega
-            ]
+            ],
+            'pagamentoPrevisto' => $this->getPagamentoPrevisto()
+        ];
+    }
+
+    /**
+     * Método responsável por retornar a forma de pagamento escolhida pelo cliente
+     * (null nos pedidos feitos antes desta opção existir)
+     * @return array|null
+     */
+    public function getPagamentoPrevisto(){
+        if(!$this->formaPagamento) return null;
+
+        return [
+            'forma'     => $this->formaPagamento,
+            'descricao' => self::FORMAS_PAGAMENTO[$this->formaPagamento] ?? $this->formaPagamento,
+            'trocoPara' => strlen((string)$this->trocoPara) ? (float)$this->trocoPara : null
         ];
     }
 }

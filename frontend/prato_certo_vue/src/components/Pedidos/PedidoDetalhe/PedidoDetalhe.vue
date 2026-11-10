@@ -66,7 +66,7 @@ const espera = () => executar('espera', () => pedidosService.colocarEmEspera(pro
 
 async function retomar() {
   const pedido = await executar('retomar', () => pedidosService.retomar(props.pedido.id), 'Pedido retomado.');
-  if (pedido) router.push(`/pdv/${pedido.id}`);
+  if (pedido) router.push(`/painel/pdv/${pedido.id}`);
 }
 
 async function cancelar(close) {
@@ -102,6 +102,14 @@ async function cancelar(close) {
       <p v-if="contato?.endereco">
         <IconMapPin aria-hidden="true" />
         {{ contato.endereco }}
+      </p>
+      <!-- FORMA DE PAGAMENTO ESCOLHIDA PELO CLIENTE NO CARDÁPIO -->
+      <p v-if="pedido.pagamentoPrevisto">
+        <IconDollar aria-hidden="true" />
+        Vai pagar com <strong>{{ pedido.pagamentoPrevisto.descricao }}</strong>
+        <template v-if="pedido.pagamentoPrevisto.trocoPara">
+          · troco para {{ formatarMoeda(pedido.pagamentoPrevisto.trocoPara) }}
+        </template>
       </p>
     </div>
 
@@ -182,7 +190,7 @@ async function cancelar(close) {
         <template v-else>
           <CommonButton
             variant="secondary"
-            @click="router.push(`/pdv/${pedido.id}`)"
+            @click="router.push(`/painel/pdv/${pedido.id}`)"
           >
             <template #icon><IconGrid /></template>
             Abrir no PDV
@@ -200,7 +208,7 @@ async function cancelar(close) {
           variant="success"
           class="pedido-detalhe__pay"
           :disabled="!pedido.itens?.length"
-          @click="router.push(`/pedidos/${pedido.id}/pagamento`)"
+          @click="router.push(`/painel/pedidos/${pedido.id}/pagamento`)"
         >
           <template #icon><IconDollar /></template>
           Pagar {{ formatarMoeda(pedido.valores.restante) }}

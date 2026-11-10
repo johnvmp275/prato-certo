@@ -158,6 +158,22 @@ class Produto{
     }
 
     /**
+     * Método responsável por retornar a URL pública da imagem do produto
+     * (o banco guarda só o nome do arquivo enviado; URLs externas são mantidas)
+     * @return string|null
+     */
+    public function getImagemUrl(){
+        //PRODUTO SEM IMAGEM
+        if(!strlen((string)$this->imagem)) return null;
+
+        //IMAGEM EXTERNA (URL COMPLETA)
+        if(preg_match('/^https?:\/\//', $this->imagem)) return $this->imagem;
+
+        //IMAGEM ENVIADA PELO PAINEL (PASTA upload/produtos)
+        return URL.'/upload/produtos/'.$this->imagem;
+    }
+
+    /**
      * Método responsável por retornar os dados do produto em array
      * @return array
      */
@@ -169,7 +185,7 @@ class Produto{
             'nome'            => $this->nome,
             'descricao'       => $this->descricao,
             'preco'           => (float)$this->preco,
-            'imagem'          => $this->imagem,
+            'imagem'          => $this->getImagemUrl(),
             'controlaEstoque' => (bool)$this->controlaEstoque,
             'estoque'         => (int)$this->estoque,
             'disponivel'      => $this->isDisponivel(),

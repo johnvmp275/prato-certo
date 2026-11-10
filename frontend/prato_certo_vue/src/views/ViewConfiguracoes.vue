@@ -29,6 +29,9 @@ const form = reactive({
   taxaServico: '',
   taxaEntrega: '',
   cardapioAberto: true,
+  pixChave: '',
+  pixTitular: '',
+  pixCidade: '',
 });
 
 const { erros, erroGeral, salvando, validar, enviar } = useFormulario([
@@ -37,6 +40,9 @@ const { erros, erroGeral, salvando, validar, enviar } = useFormulario([
   'endereco',
   'taxaServico',
   'taxaEntrega',
+  'pixChave',
+  'pixTitular',
+  'pixCidade',
 ]);
 
 function numero(valor) {
@@ -48,6 +54,9 @@ async function salvar() {
     nomeRestaurante: form.nomeRestaurante.trim().length >= 2 ? '' : 'Informe o nome do restaurante.',
     taxaServico: numero(form.taxaServico) >= 0 && numero(form.taxaServico) <= 30 ? '' : 'Informe de 0 a 30%.',
     taxaEntrega: numero(form.taxaEntrega) >= 0 ? '' : 'A taxa não pode ser negativa.',
+    // Com chave PIX, o titular e a cidade são obrigatórios (o QR Code precisa dos três)
+    pixTitular: !form.pixChave.trim() || form.pixTitular.trim().length >= 2 ? '' : 'Informe o titular da conta.',
+    pixCidade: !form.pixChave.trim() || form.pixCidade.trim().length >= 2 ? '' : 'Informe a cidade do titular.',
   });
   if (!valido) return;
 
@@ -68,6 +77,9 @@ onMounted(async () => {
       ...configuracao,
       telefone: configuracao.telefone ?? '',
       endereco: configuracao.endereco ?? '',
+      pixChave: configuracao.pixChave ?? '',
+      pixTitular: configuracao.pixTitular ?? '',
+      pixCidade: configuracao.pixCidade ?? '',
       taxaServico: String(configuracao.taxaServico).replace('.', ','),
       taxaEntrega: String(configuracao.taxaEntrega).replace('.', ','),
     });
@@ -145,7 +157,7 @@ onMounted(async () => {
           description="Quando desligado, o cardápio continua visível, mas não aceita pedidos."
         />
         <a
-          href="/cardapio"
+          href="/"
           target="_blank"
           rel="noopener"
           class="view-configuracoes__link"
@@ -153,6 +165,40 @@ onMounted(async () => {
           <IconStore aria-hidden="true" />
           Abrir cardápio online
         </a>
+      </section>
+
+      <section class="view-configuracoes__section card">
+        <div>
+          <h2 class="view-configuracoes__title">PIX</h2>
+          <p class="view-configuracoes__text">
+            Com a chave cadastrada, quem escolher PIX no cardápio recebe o QR Code e o código copia e cola com o valor do
+            pedido. Deixe a chave vazia para desativar.
+          </p>
+        </div>
+        <div class="form-grid">
+          <CommonInput
+            v-model="form.pixChave"
+            class="form-grid__full"
+            label="Chave PIX"
+            placeholder="CPF, CNPJ, e-mail, telefone com DDD ou chave aleatória"
+            hint="Telefone recebe o +55 automaticamente; CPF e CNPJ ficam só com os números."
+            :error="erros.pixChave"
+          />
+          <CommonInput
+            v-model="form.pixTitular"
+            label="Nome do titular"
+            hint="Como está no banco. No QR Code vão até 25 letras."
+            :error="erros.pixTitular"
+            :required="Boolean(form.pixChave.trim())"
+          />
+          <CommonInput
+            v-model="form.pixCidade"
+            label="Cidade do titular"
+            hint="No QR Code vão até 15 letras."
+            :error="erros.pixCidade"
+            :required="Boolean(form.pixChave.trim())"
+          />
+        </div>
       </section>
 
       <CommonMessageError :error="erroGeral" />
@@ -175,7 +221,6 @@ onMounted(async () => {
 .view-configuracoes {
   display: grid;
   gap: 18px;
-  max-width: 760px;
 }
 
 .view-configuracoes__section {
@@ -186,6 +231,12 @@ onMounted(async () => {
 
 .view-configuracoes__title {
   font-size: 1rem;
+}
+
+.view-configuracoes__text {
+  margin-top: 4px;
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
 }
 
 .view-configuracoes__link {

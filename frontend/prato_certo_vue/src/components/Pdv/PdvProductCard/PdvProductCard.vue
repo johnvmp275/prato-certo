@@ -88,8 +88,7 @@ const emit = defineEmits(['add']);
   cursor: pointer;
   transition:
     border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+    box-shadow 160ms ease;
 }
 
 .pdv-product-card.is-selected {
@@ -170,7 +169,6 @@ const emit = defineEmits(['add']);
   .pdv-product-card:not(:disabled):hover {
     border-color: var(--color-primary-200);
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
   }
 }
 </style>

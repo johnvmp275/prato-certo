@@ -1,7 +1,7 @@
 <script setup>
 import { reactive } from 'vue';
 
-import CommonDialog from '@/components/Common/CommonDialog/CommonDialog.vue';
+import CommonSheet from '@/components/Common/CommonSheet/CommonSheet.vue';
 import CommonInput from '@/components/Common/CommonInput/CommonInput.vue';
 import CommonSelect from '@/components/Common/CommonSelect/CommonSelect.vue';
 import CommonButton from '@/components/Common/CommonButton/CommonButton.vue';
@@ -37,7 +37,13 @@ const form = reactive({
   ativo: (props.usuario?.status ?? 'ativo') === 'ativo',
 });
 
-const { erros, erroGeral, salvando, validar, enviar } = useFormulario(['nome', 'email', 'perfil', 'senha', 'status']);
+const { erros, erroGeral, salvando, validar, enviar } = useFormulario([
+  'nome',
+  'email',
+  'perfil',
+  'senha',
+  'status',
+]);
 
 async function salvar(close) {
   const valido = validar({
@@ -52,7 +58,9 @@ async function salvar(close) {
 
   const dados = { ...form, status: form.ativo ? 'ativo' : 'inativo' };
   const usuario = await enviar(() =>
-    props.usuario ? usuariosService.atualizar(props.usuario.id, dados) : usuariosService.cadastrar(dados),
+    props.usuario
+      ? usuariosService.atualizar(props.usuario.id, dados)
+      : usuariosService.cadastrar(dados),
   );
   if (usuario) {
     emit('saved', usuario);
@@ -62,62 +70,64 @@ async function salvar(close) {
 </script>
 
 <template>
-  <CommonDialog
+  <CommonSheet
+    position="auto"
     :title="usuario ? 'Editar usuário' : 'Novo usuário'"
     description="O perfil define o que o usuário pode acessar no sistema."
-    :width="520"
     @close="emit('close')"
   >
-    <form
-      class="form-grid"
-      novalidate
-      @submit.prevent
-    >
-      <CommonInput
-        v-model="form.nome"
-        class="form-grid__full"
-        label="Nome"
-        :error="erros.nome"
-        required
-      />
-      <CommonInput
-        v-model="form.email"
-        class="form-grid__full"
-        label="E-mail (login)"
-        type="email"
-        autocomplete="off"
-        :error="erros.email"
-        required
-      />
-      <CommonSelect
-        v-model="form.perfil"
-        class="form-grid__full"
-        label="Perfil"
-        :options="PERFIS"
-        :error="erros.perfil"
-        required
-      />
-      <CommonInput
-        v-model="form.senha"
-        class="form-grid__full"
-        :label="usuario ? 'Nova senha' : 'Senha'"
-        type="password"
-        autocomplete="new-password"
-        :hint="usuario ? 'Deixe em branco para manter a senha atual.' : 'Mínimo de 6 caracteres.'"
-        :error="erros.senha"
-        :required="!usuario"
-      />
-      <CommonSwitch
-        v-if="usuario"
-        v-model="form.ativo"
-        class="form-grid__full"
-        label="Usuário ativo"
-      />
-      <CommonMessageError
-        class="form-grid__full"
-        :error="erros.status || erroGeral"
-      />
-    </form>
+    <template #content>
+      <form
+        class="form-grid"
+        novalidate
+        @submit.prevent
+      >
+        <CommonInput
+          v-model="form.nome"
+          class="form-grid__full"
+          label="Nome"
+          :error="erros.nome"
+          required
+        />
+        <CommonInput
+          v-model="form.email"
+          class="form-grid__full"
+          label="E-mail (login)"
+          type="email"
+          autocomplete="off"
+          :error="erros.email"
+          required
+        />
+        <CommonSelect
+          v-model="form.perfil"
+          class="form-grid__full"
+          label="Perfil"
+          :options="PERFIS"
+          :error="erros.perfil"
+          required
+        />
+        <CommonInput
+          v-model="form.senha"
+          class="form-grid__full"
+          :label="usuario ? 'Nova senha' : 'Senha'"
+          type="password"
+          autocomplete="new-password"
+          :hint="usuario ? 'Deixe em branco para manter a senha atual.' : 'Mínimo de 6 caracteres.'"
+          :error="erros.senha"
+          :required="!usuario"
+        />
+        <CommonSwitch
+          v-if="usuario"
+          v-model="form.ativo"
+          class="form-grid__full"
+          label="Usuário ativo"
+        />
+        <CommonMessageError
+          class="form-grid__full"
+          :error="erros.status || erroGeral"
+        />
+      </form>
+    </template>
 
     <template #footer="{ close }">
       <CommonButton
@@ -133,5 +143,5 @@ async function salvar(close) {
         Salvar usuário
       </CommonButton>
     </template>
-  </CommonDialog>
+  </CommonSheet>
 </template>

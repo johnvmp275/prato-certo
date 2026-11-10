@@ -29,7 +29,7 @@ defineProps({
     <slot name="left" />
 
     <RouterLink
-      to="/"
+      to="/painel"
       class="navigation-header__brand"
       :aria-label="title"
     >

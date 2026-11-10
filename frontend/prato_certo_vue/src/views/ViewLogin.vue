@@ -45,7 +45,7 @@ async function entrar() {
   carregando.value = true;
   try {
     const usuario = await auth.login(form.email.trim(), form.senha);
-    const destino = route.query.redirect || (usuario.perfil === 'administrador' ? '/' : '/pdv');
+    const destino = route.query.redirect || (usuario.perfil === 'administrador' ? '/painel' : '/painel/pdv');
     router.push(destino);
   } catch (error) {
     erroGeral.value = error.mensagem;
@@ -126,7 +126,7 @@ async function entrar() {
     </p>
 
     <RouterLink
-      to="/cardapio"
+      to="/"
       class="view-login__link"
     >
       Ver cardápio online →

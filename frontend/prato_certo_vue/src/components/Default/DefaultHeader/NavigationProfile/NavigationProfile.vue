@@ -1,5 +1,6 @@
 <script setup>
 import CommonAvatar from '@/components/Common/CommonAvatar/CommonAvatar.vue';
+import CommonThemeToggle from '@/components/Common/CommonThemeToggle/CommonThemeToggle.vue';
 
 import IconLogOut from '@/components/Icons/IconLogOut.vue';
 
@@ -48,6 +49,8 @@ const emit = defineEmits(['logout']);
         {{ role }}
       </span>
     </span>
+
+    <CommonThemeToggle />
 
     <button
       type="button"

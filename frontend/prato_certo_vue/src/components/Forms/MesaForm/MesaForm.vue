@@ -1,7 +1,7 @@
 <script setup>
 import { reactive } from 'vue';
 
-import CommonDialog from '@/components/Common/CommonDialog/CommonDialog.vue';
+import CommonSheet from '@/components/Common/CommonSheet/CommonSheet.vue';
 import CommonInput from '@/components/Common/CommonInput/CommonInput.vue';
 import CommonButton from '@/components/Common/CommonButton/CommonButton.vue';
 import CommonSwitch from '@/components/Common/CommonSwitch/CommonSwitch.vue';
@@ -29,17 +29,30 @@ const form = reactive({
   ativo: (props.mesa?.status ?? 'ativo') === 'ativo',
 });
 
-const { erros, erroGeral, salvando, validar, enviar } = useFormulario(['numero', 'capacidade', 'status']);
+const { erros, erroGeral, salvando, validar, enviar } = useFormulario([
+  'numero',
+  'capacidade',
+  'status',
+]);
 
 async function salvar(close) {
   const valido = validar({
     numero: Number(form.numero) >= 1 ? '' : 'Informe um número maior que zero.',
-    capacidade: Number(form.capacidade) >= 1 && Number(form.capacidade) <= 30 ? '' : 'Capacidade de 1 a 30 pessoas.',
+    capacidade:
+      Number(form.capacidade) >= 1 && Number(form.capacidade) <= 30
+        ? ''
+        : 'Capacidade de 1 a 30 pessoas.',
   });
   if (!valido) return;
 
-  const dados = { numero: Number(form.numero), capacidade: Number(form.capacidade), status: form.ativo ? 'ativo' : 'inativo' };
-  const mesa = await enviar(() => (props.mesa ? mesasService.atualizar(props.mesa.id, dados) : mesasService.cadastrar(dados)));
+  const dados = {
+    numero: Number(form.numero),
+    capacidade: Number(form.capacidade),
+    status: form.ativo ? 'ativo' : 'inativo',
+  };
+  const mesa = await enviar(() =>
+    props.mesa ? mesasService.atualizar(props.mesa.id, dados) : mesasService.cadastrar(dados),
+  );
   if (mesa) {
     emit('saved', mesa);
     close();
@@ -48,42 +61,44 @@ async function salvar(close) {
 </script>
 
 <template>
-  <CommonDialog
+  <CommonSheet
+    position="auto"
     :title="mesa ? `Editar mesa ${mesa.numero}` : 'Nova mesa'"
-    :width="420"
     @close="emit('close')"
   >
-    <form
-      class="mesa-form"
-      novalidate
-      @submit.prevent
-    >
-      <div class="mesa-form__row">
-        <CommonInput
-          v-model="form.numero"
-          label="Número"
-          type="number"
-          min="1"
-          :error="erros.numero"
-          required
+    <template #content>
+      <form
+        class="mesa-form"
+        novalidate
+        @submit.prevent
+      >
+        <div class="mesa-form__row">
+          <CommonInput
+            v-model="form.numero"
+            label="Número"
+            type="number"
+            min="1"
+            :error="erros.numero"
+            required
+          />
+          <CommonInput
+            v-model="form.capacidade"
+            label="Capacidade"
+            type="number"
+            min="1"
+            max="30"
+            :error="erros.capacidade"
+            required
+          />
+        </div>
+        <CommonSwitch
+          v-model="form.ativo"
+          label="Mesa ativa"
+          description="Mesas inativas não aparecem no mapa do salão."
         />
-        <CommonInput
-          v-model="form.capacidade"
-          label="Capacidade"
-          type="number"
-          min="1"
-          max="30"
-          :error="erros.capacidade"
-          required
-        />
-      </div>
-      <CommonSwitch
-        v-model="form.ativo"
-        label="Mesa ativa"
-        description="Mesas inativas não aparecem no mapa do salão."
-      />
-      <CommonMessageError :error="erros.status || erroGeral" />
-    </form>
+        <CommonMessageError :error="erros.status || erroGeral" />
+      </form>
+    </template>
 
     <template #footer="{ close }">
       <CommonButton
@@ -99,7 +114,7 @@ async function salvar(close) {
         Salvar mesa
       </CommonButton>
     </template>
-  </CommonDialog>
+  </CommonSheet>
 </template>
 
 <style scoped>

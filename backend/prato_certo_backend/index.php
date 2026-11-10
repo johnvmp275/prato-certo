@@ -1,4 +1,13 @@
-<?php 
+<?php
+
+//SERVIDOR EMBUTIDO DO PHP (php -S): ENTREGA AS IMAGENS DA PASTA upload DIRETAMENTE
+//(NO APACHE O .htaccess JÁ FAZ ISSO; SOMENTE IMAGENS DE upload/ SÃO LIBERADAS)
+if (php_sapi_name() === 'cli-server') {
+    $arquivo = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    if (preg_match('/^\/upload\/[a-z]+\/[A-Za-z0-9]+\.(jpg|png|webp)$/', $arquivo) && is_file(__DIR__.$arquivo)) {
+        return false;
+    }
+}
 
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 

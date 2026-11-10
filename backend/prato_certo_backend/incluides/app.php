@@ -31,6 +31,7 @@
         'api'                  => \App\Http\Middleware\Api::class,
         'require-painel-login' => \App\Http\Middleware\RequirePainelLogin::class,
         'require-permissao'    => \App\Http\Middleware\RequirePermissao::class,
+        'require-cliente-login' => \App\Http\Middleware\RequireClienteLogin::class,
     ]);
 
     //DEFINE O MAPEAMENTO DE MIDDLEWARES PADRÕES (EXECUTADOS EM TODAS AS ROTAS)
